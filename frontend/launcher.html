@@ -1,0 +1,787 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>dupfinder - Browser Mode</title>
+  <style>
+    :root{
+      --bg:#f7f7f1;
+      --panel:#fffdf7;
+      --ink:#20211f;
+      --accent:#0f766e;
+      --accent-2:#115e59;
+      --soft:#d1fae5;
+      --warn:#b91c1c;
+      --line:#d6d3d1;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Trebuchet MS","Segoe UI",sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 15% 20%, #fef3c7 0%, transparent 35%),
+        radial-gradient(circle at 80% 10%, #ccfbf1 0%, transparent 30%),
+        var(--bg);
+      min-height:100vh;
+      padding:18px;
+    }
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:14px;
+      box-shadow:0 12px 28px rgba(0,0,0,0.08);
+      padding:16px;
+      animation:show 320ms ease;
+    }
+    @keyframes show{
+      from{opacity:0;transform:translateY(8px)}
+      to{opacity:1;transform:none}
+    }
+    h1{margin:0 0 8px 0}
+    .muted{margin:0;color:#5b5d57}
+    .actions,.stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    button{
+      border:0;
+      background:var(--accent);
+      color:white;
+      padding:10px 14px;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:600;
+    }
+    button.secondary{background:#44403c}
+    button.danger{background:var(--warn)}
+    button:disabled{opacity:0.6;cursor:not-allowed}
+    .tinyBtn{
+      padding:6px 8px;
+      font-size:12px;
+      border-radius:6px;
+      background:#334155;
+      color:#fff;
+    }
+    .stat{
+      flex:1;
+      min-width:150px;
+      border:1px solid var(--line);
+      border-radius:8px;
+      padding:10px;
+      background:#fafaf9;
+    }
+    .status{
+      margin-top:10px;
+      border-left:4px solid var(--accent-2);
+      background:var(--soft);
+      padding:8px 10px;
+      border-radius:6px;
+      font-size:14px;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:12px;
+      font-size:14px;
+    }
+    th,td{
+      border:1px solid var(--line);
+      padding:7px;
+      text-align:left;
+      vertical-align:top;
+      word-break:break-word;
+    }
+    th{background:#ecfccb}
+    .path{
+      font-family:Consolas,monospace;
+      font-size:12px;
+    }
+    .keeper{
+      background:#dcfce7;
+      border-radius:4px;
+      padding:2px 4px;
+      font-size:12px;
+    }
+    .previewWrap{
+      margin-top:14px;
+      border:1px solid var(--line);
+      border-radius:8px;
+      padding:10px;
+      background:#f8fafc;
+    }
+    .previewTitle{
+      margin:0 0 10px 0;
+      font-size:16px;
+    }
+    .previewGrid{
+      display:grid;
+      gap:10px;
+      grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+    }
+    .previewCard{
+      border:1px solid #cbd5e1;
+      border-radius:8px;
+      background:white;
+      padding:8px;
+    }
+    .previewMeta{
+      font-size:12px;
+      color:#334155;
+      margin-bottom:6px;
+      word-break:break-word;
+    }
+    .groupControls{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .selectionHint{
+      font-size:12px;
+      color:#475569;
+      margin-top:8px;
+    }
+    .previewCard img,
+    .previewCard video{
+      width:100%;
+      max-height:180px;
+      object-fit:cover;
+      border-radius:6px;
+      border:1px solid #e2e8f0;
+      background:#f1f5f9;
+    }
+    .previewEmpty{
+      margin-top:12px;
+      border:1px dashed var(--line);
+      border-radius:8px;
+      padding:10px;
+      color:#475569;
+      font-size:13px;
+      background:#fafafa;
+    }
+    pre{
+      margin-top:12px;
+      background:#1f2937;
+      color:#f9fafb;
+      padding:10px;
+      border-radius:8px;
+      overflow:auto;
+      max-height:250px;
+    }
+    @media (max-width:700px){
+      .wrap{padding:12px}
+      h1{font-size:24px}
+      table{font-size:12px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Duplicate Finder & Deletion Tool</h1>
+    <p class="muted">Website mode: select a folder, click Go Ahead, review duplicates, then delete selected/all duplicates.</p>
+
+    <div class="actions">
+      <button id="pickBtn">Select Folder</button>
+      <button id="scanBtn" class="secondary" disabled>Go Ahead</button>
+      <button id="previewSelectedBtn" class="secondary" disabled>Preview Selected</button>
+      <button id="selectAllBtn" class="secondary" disabled>Select All</button>
+      <button id="deselectAllBtn" class="secondary" disabled>Deselect All</button>
+      <button id="deleteSelectedBtn" class="danger" disabled>Delete Selected</button>
+      <button id="deleteAllBtn" class="danger" disabled>Delete All Duplicates</button>
+      <button id="exportBtn" class="secondary" disabled>Export Report</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div>Scanned files</div><strong id="scannedFiles">0</strong></div>
+      <div class="stat"><div>Duplicate groups</div><strong id="dupGroups">0</strong></div>
+      <div class="stat"><div>Delete candidates</div><strong id="deleteCandidates">0</strong></div>
+      <div class="stat"><div>Recoverable bytes</div><strong id="recoverableBytes">0</strong></div>
+    </div>
+
+    <div id="status" class="status">Select a folder to begin.</div>
+    <div id="tableContainer"></div>
+    <div id="previewContainer"></div>
+    <pre id="rawOutput">(no output)</pre>
+  </div>
+
+  <script>
+    const IMAGE_EXTS = new Set([
+      ".jpg",".jpeg",".png",".gif",".bmp",".tiff",".heic",".heif",
+    ]);
+    const VIDEO_EXTS = new Set([
+      ".mp4",".mov",".avi",".mkv",".webm",".mpg",".mpeg"
+    ]);
+    const MEDIA_EXTS = new Set([...IMAGE_EXTS, ...VIDEO_EXTS]);
+    const RUNTIME_FILE = "dupfinder-runtime.json";
+
+    let rootHandle = null;
+    let allFiles = [];
+    let duplicateGroups = [];
+    let scannedCount = 0;
+    let previewUrls = [];
+
+    const el = {
+      pickBtn: document.getElementById("pickBtn"),
+      scanBtn: document.getElementById("scanBtn"),
+      previewSelectedBtn: document.getElementById("previewSelectedBtn"),
+      selectAllBtn: document.getElementById("selectAllBtn"),
+      deselectAllBtn: document.getElementById("deselectAllBtn"),
+      deleteSelectedBtn: document.getElementById("deleteSelectedBtn"),
+      deleteAllBtn: document.getElementById("deleteAllBtn"),
+      exportBtn: document.getElementById("exportBtn"),
+      scannedFiles: document.getElementById("scannedFiles"),
+      dupGroups: document.getElementById("dupGroups"),
+      deleteCandidates: document.getElementById("deleteCandidates"),
+      recoverableBytes: document.getElementById("recoverableBytes"),
+      status: document.getElementById("status"),
+      tableContainer: document.getElementById("tableContainer"),
+      previewContainer: document.getElementById("previewContainer"),
+      rawOutput: document.getElementById("rawOutput")
+    };
+
+    el.pickBtn.addEventListener("click", selectFolder);
+    el.scanBtn.addEventListener("click", goAheadScan);
+    el.previewSelectedBtn.addEventListener("click", previewSelected);
+    el.selectAllBtn.addEventListener("click", () => setAllSelections(true));
+    el.deselectAllBtn.addEventListener("click", () => setAllSelections(false));
+    el.deleteSelectedBtn.addEventListener("click", deleteSelected);
+    el.deleteAllBtn.addEventListener("click", deleteAll);
+    el.exportBtn.addEventListener("click", exportReport);
+
+    function setStatus(msg) {
+      el.status.textContent = msg;
+    }
+
+    function setRaw(data) {
+      el.rawOutput.textContent = JSON.stringify(data, null, 2);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function releasePreviewUrls() {
+      for (const url of previewUrls) URL.revokeObjectURL(url);
+      previewUrls = [];
+    }
+
+    function clearPreview(message = "") {
+      releasePreviewUrls();
+      if (!message) {
+        el.previewContainer.innerHTML = "";
+        return;
+      }
+      el.previewContainer.innerHTML = `<div class="previewEmpty">${escapeHtml(message)}</div>`;
+    }
+
+    function fileStem(name) {
+      const idx = name.lastIndexOf(".");
+      return idx > 0 ? name.slice(0, idx) : name;
+    }
+
+    function hasCopyMarker(stem) {
+      return /\bcopy\b|\bcopied\b|\bduplicate\b/i.test(stem);
+    }
+
+    function hasNumericDuplicateSuffix(stem) {
+      return /(?:\(\d+\)|[\s._-]\d+)$/i.test(stem.trim());
+    }
+
+    function keeperScore(item) {
+      const stem = fileStem(item.name).trim();
+      return {
+        copyPenalty: hasCopyMarker(stem) ? 1 : 0,
+        numberPenalty: hasNumericDuplicateSuffix(stem) ? 1 : 0,
+        modifiedTime: item.file?.lastModified ?? Number.MAX_SAFE_INTEGER,
+        stemLength: stem.length,
+        normalizedName: item.name.toLowerCase()
+      };
+    }
+
+    function compareKeeperCandidates(a, b) {
+      const sa = keeperScore(a);
+      const sb = keeperScore(b);
+      return (
+        sa.copyPenalty - sb.copyPenalty ||
+        sa.numberPenalty - sb.numberPenalty ||
+        sa.modifiedTime - sb.modifiedTime ||
+        sa.stemLength - sb.stemLength ||
+        sa.normalizedName.localeCompare(sb.normalizedName)
+      );
+    }
+
+    function normalizeNameKey(stem) {
+      let value = stem.toLowerCase();
+      let prev = "";
+      while (prev !== value) {
+        prev = value;
+        value = value
+          .replace(/[_-]+/g, " ")
+          .replace(/\bcopy\b|\bcopied\b|\bduplicate\b/gi, " ")
+          .replace(/(?:\(\d+\)|\[\d+\]|[\s._-]\d+)$/gi, "")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+      return value || stem.toLowerCase().trim();
+    }
+
+    function getDuplicateNameKey(fileName) {
+      return normalizeNameKey(fileStem(fileName));
+    }
+
+    function sortGroupWithKeeperFirst(files) {
+      const sorted = [...files].sort(compareKeeperCandidates);
+      if (sorted.length <= 1) return sorted;
+      const keeper = sorted[0];
+      const rest = sorted.slice(1).sort((a, b) => a.relativePath.localeCompare(b.relativePath));
+      return [keeper, ...rest];
+    }
+
+    function getDuplicateCheckboxes() {
+      return Array.from(el.tableContainer.querySelectorAll("input.dup-check"));
+    }
+
+    function setAllSelections(checked) {
+      getDuplicateCheckboxes().forEach(cb => {
+        cb.checked = checked;
+      });
+      renderSelectedPreview();
+    }
+
+    function setGroupSelections(groupIndex, checked) {
+      el.tableContainer
+        .querySelectorAll(`input.dup-check[data-group="${groupIndex}"]`)
+        .forEach(cb => {
+          cb.checked = checked;
+        });
+      renderSelectedPreview();
+    }
+
+    async function removeRuntimeFile() {
+      if (!rootHandle) return { removed: false, reason: "no-folder" };
+      try {
+        await rootHandle.removeEntry(RUNTIME_FILE);
+        return { removed: true };
+      } catch (err) {
+        const msg = String(err || "");
+        if (msg.includes("NotFoundError")) return { removed: false, reason: "missing" };
+        return { removed: false, reason: "error", error: msg };
+      }
+    }
+
+    function resetForFolderReselection(statusMessage) {
+      releasePreviewUrls();
+      rootHandle = null;
+      allFiles = [];
+      duplicateGroups = [];
+      scannedCount = 0;
+
+      el.tableContainer.innerHTML = "";
+      el.previewContainer.innerHTML = '<div class="previewEmpty">Session closed. Select a folder to start a new run.</div>';
+      el.scannedFiles.textContent = "0";
+      el.dupGroups.textContent = "0";
+      el.deleteCandidates.textContent = "0";
+      el.recoverableBytes.textContent = "0";
+
+      el.scanBtn.disabled = true;
+      el.previewSelectedBtn.disabled = true;
+      el.selectAllBtn.disabled = true;
+      el.deselectAllBtn.disabled = true;
+      el.deleteSelectedBtn.disabled = true;
+      el.deleteAllBtn.disabled = true;
+      el.exportBtn.disabled = true;
+
+      setStatus(statusMessage);
+    }
+
+    function formatRuntimeCleanupMessage(cleanup) {
+      if (cleanup.removed) return "Runtime marker removed.";
+      if (cleanup.reason === "missing") return "Runtime marker was already absent.";
+      if (cleanup.reason === "no-folder") return "No active folder handle was present.";
+      return `Runtime marker could not be removed (${cleanup.error || "unknown error"}).`;
+    }
+
+    async function ensureReadWritePermission(handle) {
+      const options = { mode: "readwrite" };
+      if ((await handle.queryPermission(options)) === "granted") return true;
+      if ((await handle.requestPermission(options)) === "granted") return true;
+      return false;
+    }
+
+    async function selectFolder() {
+      if (!window.showDirectoryPicker) {
+        alert("This browser does not support folder access API. Use latest Chrome/Edge.");
+        return;
+      }
+      try {
+        rootHandle = await window.showDirectoryPicker({ mode: "readwrite" });
+        const ok = await ensureReadWritePermission(rootHandle);
+        if (!ok) {
+          setStatus("Folder permission denied.");
+          return;
+        }
+        await writeRuntimeFile();
+        el.scanBtn.disabled = false;
+        setStatus("Folder selected. Runtime file created. Click Go Ahead.");
+      } catch (err) {
+        setStatus("Folder selection cancelled.");
+      }
+    }
+
+    async function writeRuntimeFile() {
+      const fileHandle = await rootHandle.getFileHandle(RUNTIME_FILE, { create: true });
+      const writable = await fileHandle.createWritable();
+      const payload = {
+        createdAt: new Date().toISOString(),
+        purpose: "Duplicate finder runtime marker file",
+        extensions: Array.from(MEDIA_EXTS)
+      };
+      await writable.write(JSON.stringify(payload, null, 2));
+      await writable.close();
+    }
+
+    async function* walk(dirHandle, pathPrefix = "") {
+      for await (const [name, handle] of dirHandle.entries()) {
+        if (name === RUNTIME_FILE) continue;
+        const relativePath = pathPrefix ? `${pathPrefix}/${name}` : name;
+        if (handle.kind === "directory") {
+          yield* walk(handle, relativePath);
+        } else {
+          const ext = "." + name.split(".").pop().toLowerCase();
+          if (MEDIA_EXTS.has(ext)) {
+            yield { handle, name, relativePath, ext, parent: dirHandle };
+          }
+        }
+      }
+    }
+
+    async function hashFile(file) {
+      const buf = await file.arrayBuffer();
+      const digest = await crypto.subtle.digest("SHA-256", buf);
+      const bytes = new Uint8Array(digest);
+      return Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    async function goAheadScan() {
+      if (!rootHandle) {
+        alert("Select folder first.");
+        return;
+      }
+
+      allFiles = [];
+      duplicateGroups = [];
+      scannedCount = 0;
+      setStatus("Collecting files...");
+      el.tableContainer.innerHTML = "";
+      clearPreview("");
+      el.previewSelectedBtn.disabled = true;
+      el.selectAllBtn.disabled = true;
+      el.deselectAllBtn.disabled = true;
+      el.deleteSelectedBtn.disabled = true;
+      el.deleteAllBtn.disabled = true;
+      el.exportBtn.disabled = true;
+
+      for await (const item of walk(rootHandle)) {
+        allFiles.push(item);
+      }
+      if (!allFiles.length) {
+        updateStats();
+        setStatus("No supported media files found.");
+        return;
+      }
+
+      setStatus(`Scanning ${allFiles.length} files...`);
+      const nameSizeBuckets = new Map();
+      for (const item of allFiles) {
+        const file = await item.handle.getFile();
+        item.size = file.size;
+        item.file = file;
+        item.nameKey = getDuplicateNameKey(item.name);
+        const nameSizeKey = `${item.nameKey}|${item.size}`;
+        if (!nameSizeBuckets.has(nameSizeKey)) {
+          nameSizeBuckets.set(nameSizeKey, []);
+        }
+        nameSizeBuckets.get(nameSizeKey).push(item);
+      }
+
+      const hashBuckets = new Map();
+      const candidates = Array.from(nameSizeBuckets.values()).filter(group => group.length > 1);
+      for (const group of candidates) {
+        for (const item of group) {
+          item.hash = await hashFile(item.file);
+          const matchKey = `${item.nameKey}|${item.size}|${item.hash}`;
+          if (!hashBuckets.has(matchKey)) {
+            hashBuckets.set(matchKey, {
+              hash: item.hash,
+              size: item.size,
+              nameKey: item.nameKey,
+              files: []
+            });
+          }
+          hashBuckets.get(matchKey).files.push(item);
+          scannedCount += 1;
+          updateStats();
+        }
+      }
+
+      duplicateGroups = Array.from(hashBuckets.values())
+        .map(group => ({ ...group, files: sortGroupWithKeeperFirst(group.files) }))
+        .filter(g => g.files.length > 1);
+
+      renderDuplicateTable();
+      renderSelectedPreview();
+      updateStats();
+      setRaw(buildReportObject());
+      setStatus(`Scan complete. Found ${duplicateGroups.length} duplicate groups (name + size + content match).`);
+    }
+
+    function updateStats() {
+      const candidateCount = duplicateGroups.reduce((sum, g) => sum + (g.files.length - 1), 0);
+      const recoverable = duplicateGroups.reduce((sum, g) => {
+        if (!g.files[0]) return sum;
+        return sum + g.files[0].size * (g.files.length - 1);
+      }, 0);
+      el.scannedFiles.textContent = scannedCount || allFiles.length || 0;
+      el.dupGroups.textContent = duplicateGroups.length;
+      el.deleteCandidates.textContent = candidateCount;
+      el.recoverableBytes.textContent = recoverable;
+      const canDelete = candidateCount > 0;
+      el.previewSelectedBtn.disabled = !canDelete;
+      el.selectAllBtn.disabled = !canDelete;
+      el.deselectAllBtn.disabled = !canDelete;
+      el.deleteSelectedBtn.disabled = !canDelete;
+      el.deleteAllBtn.disabled = !canDelete;
+      el.exportBtn.disabled = duplicateGroups.length === 0;
+    }
+
+    function renderDuplicateTable() {
+      if (!duplicateGroups.length) {
+        el.tableContainer.innerHTML = "<p>No duplicates found.</p>";
+        return;
+      }
+      const rows = [];
+      duplicateGroups.forEach((group, groupIndex) => {
+        group.files.forEach((f, fileIndex) => {
+          const keeper = fileIndex === 0;
+          const groupControls = keeper
+            ? `
+              <div class="groupControls">
+                <button type="button" class="tinyBtn groupSelectBtn" data-group="${groupIndex}">Select Group</button>
+                <button type="button" class="tinyBtn groupDeselectBtn" data-group="${groupIndex}">Deselect Group</button>
+                <button type="button" class="tinyBtn groupPreviewBtn" data-group="${groupIndex}">Preview Group</button>
+              </div>
+            `
+            : "";
+          rows.push(`
+            <tr>
+              <td>${groupIndex + 1}</td>
+              <td class="path">${group.hash.slice(0, 16)}...</td>
+              <td class="path">${escapeHtml(group.nameKey)}</td>
+              <td>${f.size}</td>
+              <td class="path">${f.relativePath}</td>
+              <td>${keeper ? '<span class="keeper">KEEPER (Original)</span>' : `<input class="dup-check" type="checkbox" data-group="${groupIndex}" data-file="${fileIndex}" checked />`}</td>
+              <td>${groupControls}</td>
+            </tr>
+          `);
+        });
+      });
+
+      el.tableContainer.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Group</th>
+              <th>Hash</th>
+              <th>Name Key</th>
+              <th>Bytes</th>
+              <th>Path</th>
+              <th>Delete?</th>
+              <th>Group Controls</th>
+            </tr>
+          </thead>
+          <tbody>${rows.join("")}</tbody>
+        </table>
+        <div class="selectionHint">Tip: Use Select/Deselect All, or use per-group controls for faster review before deletion.</div>
+      `;
+
+      el.tableContainer.querySelectorAll("input.dup-check").forEach(cb => {
+        cb.addEventListener("change", renderSelectedPreview);
+      });
+      el.tableContainer.querySelectorAll(".groupSelectBtn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          setGroupSelections(Number(btn.dataset.group), true);
+        });
+      });
+      el.tableContainer.querySelectorAll(".groupDeselectBtn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          setGroupSelections(Number(btn.dataset.group), false);
+        });
+      });
+      el.tableContainer.querySelectorAll(".groupPreviewBtn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          previewGroup(Number(btn.dataset.group));
+        });
+      });
+    }
+
+    function getSelectedTargets(withGroup = false) {
+      const targets = [];
+      el.tableContainer.querySelectorAll("input.dup-check:checked").forEach(cb => {
+        const g = Number(cb.dataset.group);
+        const i = Number(cb.dataset.file);
+        const item = duplicateGroups[g]?.files[i];
+        if (item) {
+          targets.push(withGroup ? { groupNumber: g + 1, item } : item);
+        }
+      });
+      return targets;
+    }
+
+    function renderPreview(entries, heading) {
+      releasePreviewUrls();
+      if (!entries.length) {
+        el.previewContainer.innerHTML = '<div class="previewEmpty">No selected duplicates to preview.</div>';
+        return;
+      }
+
+      const cards = entries.map(({ groupNumber, item, isKeeper }) => {
+        const url = URL.createObjectURL(item.file);
+        previewUrls.push(url);
+        let media = `<div class="previewMeta">Preview unavailable</div>`;
+        if (IMAGE_EXTS.has(item.ext)) media = `<img src="${url}" alt="${escapeHtml(item.name)}" loading="lazy" />`;
+        if (VIDEO_EXTS.has(item.ext)) media = `<video src="${url}" controls preload="metadata"></video>`;
+        return `
+          <div class="previewCard">
+            <div class="previewMeta">Group ${groupNumber}</div>
+            <div class="previewMeta">${isKeeper ? "Keeper file" : "Selected duplicate"}</div>
+            <div class="previewMeta">${escapeHtml(item.relativePath)}</div>
+            ${media}
+          </div>
+        `;
+      });
+
+      el.previewContainer.innerHTML = `
+        <div class="previewWrap">
+          <h3 class="previewTitle">${escapeHtml(heading)}</h3>
+          <div class="previewGrid">${cards.join("")}</div>
+        </div>
+      `;
+    }
+
+    function renderSelectedPreview() {
+      const selected = getSelectedTargets(true).map(({ groupNumber, item }) => ({
+        groupNumber,
+        item,
+        isKeeper: false
+      }));
+      renderPreview(selected, `Selected Duplicate Preview (${selected.length})`);
+    }
+
+    function previewGroup(groupIndex) {
+      const group = duplicateGroups[groupIndex];
+      if (!group) return;
+      const entries = group.files.map((item, idx) => ({
+        groupNumber: groupIndex + 1,
+        item,
+        isKeeper: idx === 0
+      }));
+      renderPreview(entries, `Group ${groupIndex + 1} Preview (${entries.length} files)`);
+    }
+
+    function previewSelected() {
+      renderSelectedPreview();
+      if (!getSelectedTargets().length) {
+        alert("No selected duplicates to preview.");
+      }
+    }
+
+    async function deleteItems(items) {
+      let deleted = 0;
+      const failed = [];
+      for (const item of items) {
+        try {
+          await item.parent.removeEntry(item.name);
+          deleted += 1;
+        } catch (err) {
+          failed.push({ path: item.relativePath, error: String(err) });
+        }
+      }
+      return { deleted, failed };
+    }
+
+    async function deleteSelected() {
+      const targets = getSelectedTargets();
+      if (!targets.length) {
+        alert("No selected duplicate files.");
+        return;
+      }
+      if (!confirm(`Delete ${targets.length} selected duplicate files?`)) return;
+      const result = await deleteItems(targets);
+      const continueDeleting = confirm(
+        "Do you want to delete anything else in this folder?\n\nOK = Yes, continue in this folder.\nCancel = No, end this session."
+      );
+
+      if (continueDeleting) {
+        setRaw({ ...result, sessionEnded: false });
+        setStatus(`Deleted ${result.deleted} files. Runtime marker kept. Refreshing duplicates for next action...`);
+        await goAheadScan();
+        return;
+      }
+
+      const cleanup = await removeRuntimeFile();
+      setRaw({ ...result, sessionEnded: true, runtimeCleanup: cleanup });
+      resetForFolderReselection(
+        `Deleted ${result.deleted} files. ${formatRuntimeCleanupMessage(cleanup)} Please select folder again for any further operation.`
+      );
+    }
+
+    async function deleteAll() {
+      const targets = duplicateGroups.flatMap(g => g.files.slice(1));
+      if (!targets.length) {
+        alert("No duplicate candidates to delete.");
+        return;
+      }
+      if (!confirm(`Delete all ${targets.length} duplicate files (keeping one per group)?`)) return;
+      const result = await deleteItems(targets);
+      const cleanup = await removeRuntimeFile();
+      setRaw({ ...result, sessionEnded: true, runtimeCleanup: cleanup });
+      resetForFolderReselection(
+        `Deleted ${result.deleted} files via Delete All. ${formatRuntimeCleanupMessage(cleanup)} Select folder again to continue.`
+      );
+    }
+
+    function buildReportObject() {
+      return {
+        generatedAt: new Date().toISOString(),
+        matchingMode: "name_key + size + sha256",
+        scannedFiles: allFiles.length,
+        duplicateGroups: duplicateGroups.map(g => ({
+          hash: g.hash,
+          nameKey: g.nameKey || "",
+          size: g.size || g.files[0]?.size || 0,
+          files: g.files.map(f => f.relativePath),
+          keeper: g.files[0]?.relativePath || null
+        }))
+      };
+    }
+
+    function exportReport() {
+      const report = buildReportObject();
+      const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "dupfinder-report.json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
