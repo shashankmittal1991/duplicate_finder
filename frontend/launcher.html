@@ -6,202 +6,665 @@
   <title>dupfinder - Browser Mode</title>
   <style>
     :root{
-      --bg:#f7f7f1;
-      --panel:#fffdf7;
-      --ink:#20211f;
-      --accent:#0f766e;
-      --accent-2:#115e59;
-      --soft:#d1fae5;
-      --warn:#b91c1c;
-      --line:#d6d3d1;
+      --bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --panel: rgba(255, 255, 255, 0.95);
+      --ink: #1f2937;
+      --accent: #3b82f6;
+      --accent-2: #1d4ed8;
+      --soft: #dbeafe;
+      --warn: #ef4444;
+      --line: #e5e7eb;
+      --success: #10b981;
+      --muted: #6b7280;
     }
     *{box-sizing:border-box}
+    .hidden{display:none !important}
     body{
       margin:0;
-      font-family:"Trebuchet MS","Segoe UI",sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       color:var(--ink);
-      background:
-        radial-gradient(circle at 15% 20%, #fef3c7 0%, transparent 35%),
-        radial-gradient(circle at 80% 10%, #ccfbf1 0%, transparent 30%),
-        var(--bg);
+      background: var(--bg);
+      background-attachment: fixed;
       min-height:100vh;
-      padding:18px;
+      padding:20px;
     }
     .wrap{
-      max-width:1100px;
+      max-width:1400px;
       margin:0 auto;
       background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:14px;
-      box-shadow:0 12px 28px rgba(0,0,0,0.08);
-      padding:16px;
-      animation:show 320ms ease;
+      backdrop-filter: blur(10px);
+      border:1px solid rgba(255,255,255,0.2);
+      border-radius:16px;
+      box-shadow:0 20px 40px rgba(0,0,0,0.1);
+      padding:24px;
+      animation:show 500ms ease;
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 24px;
+      align-items: start;
     }
     @keyframes show{
-      from{opacity:0;transform:translateY(8px)}
+      from{opacity:0;transform:translateY(20px) scale(0.95)}
       to{opacity:1;transform:none}
     }
-    h1{margin:0 0 8px 0}
-    .muted{margin:0;color:#5b5d57}
-    .actions,.stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    h1{
+      margin:0 0 12px 0;
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .muted{
+      margin:0;
+      color:var(--muted);
+      font-size: 0.95rem;
+    }
+    .actions,.stats{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:16px;
+    }
     button{
       border:0;
-      background:var(--accent);
+      background: var(--accent);
       color:white;
-      padding:10px 14px;
-      border-radius:8px;
+      padding:12px 20px;
+      border-radius:10px;
       cursor:pointer;
       font-weight:600;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     }
-    button.secondary{background:#44403c}
-    button.danger{background:var(--warn)}
-    button:disabled{opacity:0.6;cursor:not-allowed}
+    button:hover:not(:disabled){
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+    button:active:not(:disabled){
+      transform: translateY(0);
+    }
+    button.secondary{
+      background: #6b7280;
+      box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+    }
+    button.secondary:hover:not(:disabled){
+      box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
+    }
+    button.danger{
+      background: var(--warn);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+    button.danger:hover:not(:disabled){
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+    }
+    button:disabled{
+      opacity:0.5;
+      cursor:not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
     .tinyBtn{
-      padding:6px 8px;
+      padding:8px 12px;
       font-size:12px;
-      border-radius:6px;
-      background:#334155;
+      border-radius:8px;
+      background:#6b7280;
       color:#fff;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .tinyBtn:hover{
+      background: #4b5563;
+      transform: translateY(-1px);
     }
     .stat{
       flex:1;
-      min-width:150px;
+      min-width:160px;
       border:1px solid var(--line);
-      border-radius:8px;
-      padding:10px;
-      background:#fafaf9;
+      border-radius:12px;
+      padding:16px;
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(5px);
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .stat div{
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .stat strong{
+      font-size: 1.5rem;
+      color: var(--ink);
+      font-weight: 700;
     }
     .status{
-      margin-top:10px;
-      border-left:4px solid var(--accent-2);
-      background:var(--soft);
-      padding:8px 10px;
-      border-radius:6px;
+      margin-top:16px;
+      border-left:4px solid var(--accent);
+      background: var(--soft);
+      padding:12px 16px;
+      border-radius:10px;
       font-size:14px;
+      font-weight: 500;
     }
     table{
       width:100%;
       border-collapse:collapse;
-      margin-top:12px;
+      margin-top:16px;
       font-size:14px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
     th,td{
       border:1px solid var(--line);
-      padding:7px;
+      padding:12px;
       text-align:left;
       vertical-align:top;
       word-break:break-word;
     }
-    th{background:#ecfccb}
+    th{
+      background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+      font-weight: 600;
+      color: var(--ink);
+    }
+    tbody tr:hover{
+      background: rgba(59, 130, 246, 0.05);
+    }
     .path{
       font-family:Consolas,monospace;
       font-size:12px;
     }
     .keeper{
-      background:#dcfce7;
-      border-radius:4px;
-      padding:2px 4px;
-      font-size:12px;
+      background: linear-gradient(135deg, var(--success), #059669);
+      color: white;
+      border-radius:6px;
+      padding:4px 8px;
+      font-size:11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .groupThumbnail{
+      width: 32px;
+      height: 32px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 2px solid var(--line);
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .groupThumbnail:hover{
+      transform: scale(1.12);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.14);
     }
     .previewWrap{
-      margin-top:14px;
       border:1px solid var(--line);
-      border-radius:8px;
-      padding:10px;
-      background:#f8fafc;
+      border-radius:12px;
+      padding:16px;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(5px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      height: fit-content;
+      max-height: 80vh;
+      overflow-y: auto;
     }
     .previewTitle{
-      margin:0 0 10px 0;
-      font-size:16px;
+      margin:0 0 16px 0;
+      font-size:18px;
+      font-weight: 600;
+      color: var(--ink);
     }
     .previewGrid{
       display:grid;
-      gap:10px;
-      grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+      gap:12px;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
     }
     .previewCard{
-      border:1px solid #cbd5e1;
-      border-radius:8px;
+      border:1px solid var(--line);
+      border-radius:10px;
       background:white;
-      padding:8px;
+      padding:12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      transition: all 0.2s ease;
+    }
+    .previewCard:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
     }
     .previewMeta{
       font-size:12px;
-      color:#334155;
-      margin-bottom:6px;
+      color:var(--muted);
+      margin-bottom:8px;
       word-break:break-word;
     }
     .groupControls{
       display:flex;
-      gap:6px;
+      gap:8px;
       flex-wrap:wrap;
+      margin-top: 8px;
     }
-    .selectionHint{
-      font-size:12px;
-      color:#475569;
-      margin-top:8px;
+    .left-panel{
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .right-panel{
+      position: sticky;
+      top: 20px;
     }
     .previewCard img,
     .previewCard video{
       width:100%;
-      max-height:180px;
+      max-height:90px;
       object-fit:cover;
-      border-radius:6px;
-      border:1px solid #e2e8f0;
-      background:#f1f5f9;
+      border-radius:8px;
+      border:1px solid var(--line);
+      background:#f9fafb;
+      transition: all 0.2s ease;
+    }
+    .previewCard img:hover,
+    .previewCard video:hover{
+      transform: scale(1.02);
     }
     .previewEmpty{
+      margin-top:16px;
+      border:2px dashed var(--line);
+      border-radius:12px;
+      padding:20px;
+      color:var(--muted);
+      font-size:14px;
+      background: rgba(255,255,255,0.8);
+      text-align: center;
+    }
+    pre{
+      margin-top:16px;
+      background:#1f2937;
+      color:#f9fafb;
+      padding:16px;
+      border-radius:12px;
+      overflow:auto;
+      max-height:300px;
+      font-family: 'Fira Code', Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .selectionHint{
+      font-size:13px;
+      color:var(--muted);
       margin-top:12px;
+      font-style: italic;
+    }
+    .authPanel{
+      margin-top: 16px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:14px;
+      background: rgba(255,255,255,0.88);
+      display:grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap:10px;
+      align-items:center;
+    }
+    .authState{
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .actions.compact{
+      margin-top: 0;
+    }
+    .toolTabs{
+      margin-top:16px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .tabBtn{
+      background:#e5e7eb;
+      color:#111827;
+      box-shadow:none;
+      border:1px solid #d1d5db;
+      padding:10px 16px;
+    }
+    .tabBtn:hover:not(:disabled){
+      box-shadow:none;
+      background:#d1d5db;
+      transform: translateY(-1px);
+    }
+    .tabBtn.active{
+      background: var(--accent);
+      color:white;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    .toolSection{
+      margin-top:16px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:16px;
+      background: rgba(255,255,255,0.75);
+    }
+    .toolSection.hidden{
+      display:none;
+    }
+    .toolSection h2{
+      margin:0 0 8px 0;
+      font-size:1.25rem;
+    }
+    .loginGate{
+      border:1px dashed #f59e0b;
+      background:#fffbeb;
+      color:#92400e;
+      border-radius:10px;
+      padding:12px;
+      margin-top:12px;
+      font-size:14px;
+      font-weight:600;
+    }
+    input[type="text"],
+    input[type="url"],
+    textarea{
+      width:100%;
+      border:1px solid #d1d5db;
+      border-radius:8px;
+      padding:10px 12px;
+      font-size:14px;
+      font-family: inherit;
+      background:white;
+      color:var(--ink);
+      outline:none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    input[type="text"]:focus,
+    input[type="url"]:focus,
+    textarea:focus{
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.16);
+    }
+    textarea{
+      min-height:96px;
+      resize:vertical;
+    }
+    .ideLayout{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap:12px;
+    }
+    .ideEditors{
+      display:grid;
+      gap:8px;
+    }
+    .ideEditors label{
+      font-size:12px;
+      font-weight:700;
+      color:var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .ideEditors textarea{
+      font-family: "Fira Code", Consolas, monospace;
+      font-size:13px;
+      min-height:120px;
+    }
+    .idePreviewWrap{
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:white;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height:520px;
+    }
+    .idePreviewTitle{
+      font-size:13px;
+      font-weight:700;
+      color:#111827;
+      background:#f3f4f6;
+      border-bottom:1px solid var(--line);
+      padding:10px 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.45px;
+    }
+    .ideFrame{
+      border:0;
+      width:100%;
+      min-height:100%;
+      flex:1;
+      background:white;
+    }
+    .adminGrid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap:12px;
+      margin-top:12px;
+    }
+    .adminCard{
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:12px;
+      background:white;
+      display:grid;
+      gap:10px;
+      align-content:start;
+    }
+    .adminCard h3{
+      margin:0;
+      font-size:1rem;
+    }
+    .adminForm{
+      display:grid;
+      gap:8px;
+    }
+    .adminList{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:8px;
+      max-height:320px;
+      overflow:auto;
+    }
+    .adminRow{
+      border:1px solid #e5e7eb;
+      border-radius:8px;
+      padding:10px;
+      background:#f9fafb;
+      display:grid;
+      gap:8px;
+    }
+    .adminRowTop{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .adminRowTitle{
+      font-size:14px;
+      font-weight:700;
+      color:#111827;
+      margin:0;
+      word-break:break-word;
+    }
+    .adminMeta{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:4px;
+      word-break:break-word;
+    }
+    .rowActions{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .tinyBtn.dangerTiny{
+      background:#ef4444;
+    }
+    .tinyBtn.dangerTiny:hover{
+      background:#dc2626;
+    }
+    .adminRowEmpty{
       border:1px dashed var(--line);
       border-radius:8px;
       padding:10px;
-      color:#475569;
+      text-align:center;
       font-size:13px;
-      background:#fafafa;
+      color:var(--muted);
+      background:#f8fafc;
     }
-    pre{
-      margin-top:12px;
-      background:#1f2937;
-      color:#f9fafb;
-      padding:10px;
-      border-radius:8px;
-      overflow:auto;
-      max-height:250px;
+    @media (max-width:1024px){
+      .wrap{
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .authPanel{
+        grid-template-columns: 1fr;
+      }
+      .ideLayout{
+        grid-template-columns: 1fr;
+      }
+      .adminGrid{
+        grid-template-columns: 1fr;
+      }
+      .idePreviewWrap{
+        min-height:340px;
+      }
+      .previewWrap{
+        max-height: 400px;
+      }
+      .previewGrid{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+      }
     }
     @media (max-width:700px){
-      .wrap{padding:12px}
-      h1{font-size:24px}
+      .wrap{
+        padding:16px;
+        margin: 0 10px;
+      }
+      h1{font-size:1.5rem}
       table{font-size:12px}
+      .actions, .stats{flex-direction: column;}
+      .stat{min-width: auto;}
+      .previewGrid{
+        grid-template-columns:repeat(1, minmax(0, 1fr));
+      }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>Duplicate Finder & Deletion Tool</h1>
-    <p class="muted">Website mode: select a folder, click Go Ahead, review duplicates, then delete selected/all duplicates.</p>
+    <div class="left-panel">
+      <h1>Duplicate Finder Workspace</h1>
+      <p class="muted">Login with Gmail or GitHub, use the in-browser IDE, and manage practice/blog content through admin controls.</p>
 
-    <div class="actions">
-      <button id="pickBtn">Select Folder</button>
-      <button id="scanBtn" class="secondary" disabled>Go Ahead</button>
-      <button id="previewSelectedBtn" class="secondary" disabled>Preview Selected</button>
-      <button id="selectAllBtn" class="secondary" disabled>Select All</button>
-      <button id="deselectAllBtn" class="secondary" disabled>Deselect All</button>
-      <button id="deleteSelectedBtn" class="danger" disabled>Delete Selected</button>
-      <button id="deleteAllBtn" class="danger" disabled>Delete All Duplicates</button>
-      <button id="exportBtn" class="secondary" disabled>Export Report</button>
+      <div class="authPanel">
+        <div class="authInfo">
+          <div id="authState" class="authState">Not logged in</div>
+          <p id="authMeta" class="muted">Login with Gmail or GitHub to continue.</p>
+        </div>
+        <div class="actions compact">
+          <button id="gmailLoginBtn">Login with Gmail</button>
+          <button id="githubLoginBtn" class="secondary">Login with GitHub</button>
+          <button id="logoutBtn" class="danger" disabled>Logout</button>
+        </div>
+      </div>
+
+      <div class="toolTabs">
+        <button id="tabDuplicate" class="tabBtn active">Duplicate Finder</button>
+        <button id="tabIDE" class="tabBtn">Tool IDE</button>
+        <button id="tabAdmin" class="tabBtn">Admin Control</button>
+      </div>
+
+      <section id="duplicateSection" class="toolSection">
+        <h2>Duplicate Finder</h2>
+        <p class="muted">Select a folder, scan duplicates, preview results, and delete selected files safely.</p>
+        <div class="actions">
+          <button id="pickBtn" disabled>Select Folder</button>
+          <button id="scanBtn" class="secondary" disabled>Go Ahead</button>
+          <button id="previewSelectedBtn" class="secondary" disabled>Preview Selected</button>
+          <button id="selectAllBtn" class="secondary" disabled>Select All</button>
+          <button id="deselectAllBtn" class="secondary" disabled>Deselect All</button>
+          <button id="deleteSelectedBtn" class="danger" disabled>Delete Selected</button>
+          <button id="deleteAllBtn" class="danger" disabled>Delete All Duplicates</button>
+          <button id="exportBtn" class="secondary" disabled>Export Report</button>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><div>Scanned files</div><strong id="scannedFiles">0</strong></div>
+          <div class="stat"><div>Duplicate groups</div><strong id="dupGroups">0</strong></div>
+          <div class="stat"><div>Delete candidates</div><strong id="deleteCandidates">0</strong></div>
+          <div class="stat"><div>Recoverable bytes</div><strong id="recoverableBytes">0</strong></div>
+        </div>
+
+        <div id="status" class="status">Login with Gmail or GitHub to begin.</div>
+        <div id="tableContainer"></div>
+        <pre id="rawOutput">(no output)</pre>
+      </section>
+
+      <section id="ideSection" class="toolSection hidden">
+        <h2>Tool IDE</h2>
+        <p class="muted">Write and run HTML/CSS/JavaScript snippets directly in the browser.</p>
+        <div class="ideLayout">
+          <div class="ideEditors">
+            <label for="ideHtml">HTML</label>
+            <textarea id="ideHtml" spellcheck="false"></textarea>
+            <label for="ideCss">CSS</label>
+            <textarea id="ideCss" spellcheck="false"></textarea>
+            <label for="ideJs">JavaScript</label>
+            <textarea id="ideJs" spellcheck="false"></textarea>
+            <div class="actions compact">
+              <button id="runCodeBtn" type="button">Run Code</button>
+              <button id="resetCodeBtn" type="button" class="secondary">Reset Starter</button>
+            </div>
+          </div>
+          <div class="idePreviewWrap">
+            <div class="idePreviewTitle">Live Preview</div>
+            <iframe id="ideFrame" class="ideFrame" sandbox="allow-scripts"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <section id="adminSection" class="toolSection hidden">
+        <h2>Admin Content Control</h2>
+        <p class="muted">Update practice questions, blogs, and export managed content.</p>
+        <div id="adminGate" class="loginGate">Admin access required to edit content. Login with an admin account.</div>
+        <div id="adminContent" class="hidden">
+          <div class="adminGrid">
+            <div class="adminCard">
+              <h3>Practice Questions</h3>
+              <form id="practiceForm" class="adminForm">
+                <input id="practiceTitle" type="text" placeholder="Question title" required />
+                <textarea id="practiceDescription" placeholder="Question details" required></textarea>
+                <button type="submit">Add Question</button>
+              </form>
+              <ul id="practiceList" class="adminList"></ul>
+            </div>
+            <div class="adminCard">
+              <h3>Blogs</h3>
+              <form id="blogForm" class="adminForm">
+                <input id="blogTitle" type="text" placeholder="Blog title" required />
+                <input id="blogUrl" type="url" placeholder="Blog URL (optional)" />
+                <textarea id="blogSummary" placeholder="Blog summary" required></textarea>
+                <button type="submit">Add Blog</button>
+              </form>
+              <ul id="blogList" class="adminList"></ul>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="exportContentBtn" type="button" class="secondary">Export Managed Data</button>
+          </div>
+        </div>
+      </section>
     </div>
 
-    <div class="stats">
-      <div class="stat"><div>Scanned files</div><strong id="scannedFiles">0</strong></div>
-      <div class="stat"><div>Duplicate groups</div><strong id="dupGroups">0</strong></div>
-      <div class="stat"><div>Delete candidates</div><strong id="deleteCandidates">0</strong></div>
-      <div class="stat"><div>Recoverable bytes</div><strong id="recoverableBytes">0</strong></div>
+    <div class="right-panel">
+      <div id="previewContainer"><div class="previewEmpty">Login with Gmail or GitHub to access file preview.</div></div>
     </div>
-
-    <div id="status" class="status">Select a folder to begin.</div>
-    <div id="tableContainer"></div>
-    <div id="previewContainer"></div>
-    <pre id="rawOutput">(no output)</pre>
   </div>
 
   <script>
@@ -213,14 +676,41 @@
     ]);
     const MEDIA_EXTS = new Set([...IMAGE_EXTS, ...VIDEO_EXTS]);
     const RUNTIME_FILE = "dupfinder-runtime.json";
+    const AUTH_SESSION_KEY = "dupfinder-auth-session-v1";
+    const CONTENT_STORE_KEY = "dupfinder-managed-content-v1";
+    const ADMIN_IDENTITIES = {
+      gmail: new Set(["admin@gmail.com", "owner@gmail.com"]),
+      github: new Set(["admin", "owner"])
+    };
+    const IDE_STARTER = {
+      html: '<main class="card"><h1>Tool IDE</h1><p>Edit HTML, CSS, and JS then click Run Code.</p><button id="demoBtn">Click me</button></main>',
+      css: "body{font-family:Verdana,sans-serif;background:#f4f4f5;padding:20px;} .card{max-width:420px;margin:0 auto;background:white;border:1px solid #e4e4e7;border-radius:10px;padding:20px;box-shadow:0 8px 24px rgba(0,0,0,0.08);} h1{margin-top:0;color:#1d4ed8;} button{border:0;border-radius:8px;padding:10px 14px;background:#3b82f6;color:white;cursor:pointer;}",
+      js: "document.getElementById('demoBtn')?.addEventListener('click', () => { alert('Hello from Tool IDE'); });"
+    };
 
     let rootHandle = null;
     let allFiles = [];
     let duplicateGroups = [];
     let scannedCount = 0;
     let previewUrls = [];
+    let currentUser = null;
+    let managedContent = {
+      practiceQuestions: [],
+      blogs: []
+    };
 
     const el = {
+      gmailLoginBtn: document.getElementById("gmailLoginBtn"),
+      githubLoginBtn: document.getElementById("githubLoginBtn"),
+      logoutBtn: document.getElementById("logoutBtn"),
+      authState: document.getElementById("authState"),
+      authMeta: document.getElementById("authMeta"),
+      tabDuplicate: document.getElementById("tabDuplicate"),
+      tabIDE: document.getElementById("tabIDE"),
+      tabAdmin: document.getElementById("tabAdmin"),
+      duplicateSection: document.getElementById("duplicateSection"),
+      ideSection: document.getElementById("ideSection"),
+      adminSection: document.getElementById("adminSection"),
       pickBtn: document.getElementById("pickBtn"),
       scanBtn: document.getElementById("scanBtn"),
       previewSelectedBtn: document.getElementById("previewSelectedBtn"),
@@ -236,9 +726,33 @@
       status: document.getElementById("status"),
       tableContainer: document.getElementById("tableContainer"),
       previewContainer: document.getElementById("previewContainer"),
-      rawOutput: document.getElementById("rawOutput")
+      rawOutput: document.getElementById("rawOutput"),
+      ideHtml: document.getElementById("ideHtml"),
+      ideCss: document.getElementById("ideCss"),
+      ideJs: document.getElementById("ideJs"),
+      runCodeBtn: document.getElementById("runCodeBtn"),
+      resetCodeBtn: document.getElementById("resetCodeBtn"),
+      ideFrame: document.getElementById("ideFrame"),
+      adminGate: document.getElementById("adminGate"),
+      adminContent: document.getElementById("adminContent"),
+      practiceForm: document.getElementById("practiceForm"),
+      practiceTitle: document.getElementById("practiceTitle"),
+      practiceDescription: document.getElementById("practiceDescription"),
+      practiceList: document.getElementById("practiceList"),
+      blogForm: document.getElementById("blogForm"),
+      blogTitle: document.getElementById("blogTitle"),
+      blogUrl: document.getElementById("blogUrl"),
+      blogSummary: document.getElementById("blogSummary"),
+      blogList: document.getElementById("blogList"),
+      exportContentBtn: document.getElementById("exportContentBtn")
     };
 
+    el.gmailLoginBtn.addEventListener("click", () => loginWithProvider("gmail"));
+    el.githubLoginBtn.addEventListener("click", () => loginWithProvider("github"));
+    el.logoutBtn.addEventListener("click", logout);
+    el.tabDuplicate.addEventListener("click", () => switchTool("duplicate"));
+    el.tabIDE.addEventListener("click", () => switchTool("ide"));
+    el.tabAdmin.addEventListener("click", () => switchTool("admin"));
     el.pickBtn.addEventListener("click", selectFolder);
     el.scanBtn.addEventListener("click", goAheadScan);
     el.previewSelectedBtn.addEventListener("click", previewSelected);
@@ -247,6 +761,392 @@
     el.deleteSelectedBtn.addEventListener("click", deleteSelected);
     el.deleteAllBtn.addEventListener("click", deleteAll);
     el.exportBtn.addEventListener("click", exportReport);
+    el.runCodeBtn.addEventListener("click", runIdeCode);
+    el.resetCodeBtn.addEventListener("click", resetIdeStarter);
+    el.practiceForm.addEventListener("submit", addPracticeQuestion);
+    el.blogForm.addEventListener("submit", addBlog);
+    el.practiceList.addEventListener("click", handleAdminListAction);
+    el.blogList.addEventListener("click", handleAdminListAction);
+    el.exportContentBtn.addEventListener("click", exportManagedContent);
+
+    function switchTool(tool) {
+      const isDuplicate = tool === "duplicate";
+      const isIde = tool === "ide";
+      const isAdmin = tool === "admin";
+
+      el.duplicateSection.classList.toggle("hidden", !isDuplicate);
+      el.ideSection.classList.toggle("hidden", !isIde);
+      el.adminSection.classList.toggle("hidden", !isAdmin);
+
+      el.tabDuplicate.classList.toggle("active", isDuplicate);
+      el.tabIDE.classList.toggle("active", isIde);
+      el.tabAdmin.classList.toggle("active", isAdmin);
+
+      if (isIde) {
+        runIdeCode();
+        clearPreview("IDE output is shown inside the Tool IDE panel.");
+      } else if (isAdmin) {
+        applyAdminAccessState();
+        clearPreview("Admin controls are available in this tab.");
+      } else {
+        if (!currentUser) {
+          clearPreview("Login with Gmail or GitHub to access file preview.");
+          return;
+        }
+        const selected = getSelectedTargets(true);
+        if (selected.length) renderSelectedPreview();
+        else clearPreview("");
+      }
+    }
+
+    function requireLogin(action = "use this feature") {
+      if (currentUser) return true;
+      alert(`Please login with Gmail or GitHub to ${action}.`);
+      return false;
+    }
+
+    function requireAdmin(action = "manage content") {
+      if (!requireLogin(action)) return false;
+      if (currentUser?.isAdmin) return true;
+      alert("Admin access is required for this action.");
+      return false;
+    }
+
+    function isAdminIdentity(provider, identity) {
+      const normalized = String(identity || "").trim().toLowerCase();
+      if (!normalized) return false;
+      const allow = ADMIN_IDENTITIES[provider];
+      if (allow?.has(normalized)) return true;
+      return normalized.startsWith("admin");
+    }
+
+    function makeId(prefix) {
+      return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    }
+
+    function getDefaultManagedContent() {
+      const now = new Date().toISOString();
+      return {
+        practiceQuestions: [
+          {
+            id: makeId("pq"),
+            title: "Two Sum",
+            description: "Given an array and target, return indices of two numbers summing to target.",
+            updatedAt: now,
+            updatedBy: "seed-data"
+          }
+        ],
+        blogs: [
+          {
+            id: makeId("blog"),
+            title: "How duplicate file detection works",
+            url: "https://example.com/duplicate-detection",
+            summary: "Name normalization + size check + SHA-256 matching for precision.",
+            updatedAt: now,
+            updatedBy: "seed-data"
+          }
+        ]
+      };
+    }
+
+    function loadManagedContent() {
+      try {
+        const raw = localStorage.getItem(CONTENT_STORE_KEY);
+        if (!raw) {
+          managedContent = getDefaultManagedContent();
+          saveManagedContent();
+          return;
+        }
+        const parsed = JSON.parse(raw);
+        managedContent = {
+          practiceQuestions: Array.isArray(parsed.practiceQuestions) ? parsed.practiceQuestions : [],
+          blogs: Array.isArray(parsed.blogs) ? parsed.blogs : []
+        };
+      } catch (err) {
+        managedContent = getDefaultManagedContent();
+        saveManagedContent();
+      }
+    }
+
+    function saveManagedContent() {
+      localStorage.setItem(CONTENT_STORE_KEY, JSON.stringify(managedContent));
+    }
+
+    function formatTimestamp(iso) {
+      if (!iso) return "Unknown";
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return "Unknown";
+      return d.toLocaleString();
+    }
+
+    function renderAdminList(listName, listEl, items) {
+      if (!items.length) {
+        listEl.innerHTML = '<li class="adminRowEmpty">No entries available.</li>';
+        return;
+      }
+      listEl.innerHTML = items.map(item => {
+        const detail = listName === "practice"
+          ? escapeHtml(item.description || "")
+          : `Summary: ${escapeHtml(item.summary || "")}<br />URL: ${escapeHtml(item.url || "-")}`;
+        return `
+          <li class="adminRow">
+            <div class="adminRowTop">
+              <div>
+                <p class="adminRowTitle">${escapeHtml(item.title || "")}</p>
+                <div class="adminMeta">${detail}</div>
+                <div class="adminMeta">Updated: ${escapeHtml(formatTimestamp(item.updatedAt))} by ${escapeHtml(item.updatedBy || "unknown")}</div>
+              </div>
+              <div class="rowActions">
+                <button type="button" class="tinyBtn" data-action="edit" data-list="${listName}" data-id="${escapeHtml(item.id)}">Edit</button>
+                <button type="button" class="tinyBtn dangerTiny" data-action="delete" data-list="${listName}" data-id="${escapeHtml(item.id)}">Delete</button>
+              </div>
+            </div>
+          </li>
+        `;
+      }).join("");
+    }
+
+    function renderAdminLists() {
+      renderAdminList("practice", el.practiceList, managedContent.practiceQuestions);
+      renderAdminList("blog", el.blogList, managedContent.blogs);
+    }
+
+    function getManagedList(listName) {
+      if (listName === "practice") return managedContent.practiceQuestions;
+      if (listName === "blog") return managedContent.blogs;
+      return null;
+    }
+
+    function addPracticeQuestion(event) {
+      event.preventDefault();
+      if (!requireAdmin("add practice questions")) return;
+      const title = el.practiceTitle.value.trim();
+      const description = el.practiceDescription.value.trim();
+      if (!title || !description) return;
+      managedContent.practiceQuestions.unshift({
+        id: makeId("pq"),
+        title,
+        description,
+        updatedAt: new Date().toISOString(),
+        updatedBy: currentUser?.identity || "admin"
+      });
+      saveManagedContent();
+      renderAdminLists();
+      el.practiceForm.reset();
+    }
+
+    function addBlog(event) {
+      event.preventDefault();
+      if (!requireAdmin("add blogs")) return;
+      const title = el.blogTitle.value.trim();
+      const url = el.blogUrl.value.trim();
+      const summary = el.blogSummary.value.trim();
+      if (!title || !summary) return;
+      managedContent.blogs.unshift({
+        id: makeId("blog"),
+        title,
+        url,
+        summary,
+        updatedAt: new Date().toISOString(),
+        updatedBy: currentUser?.identity || "admin"
+      });
+      saveManagedContent();
+      renderAdminLists();
+      el.blogForm.reset();
+    }
+
+    function editManagedItem(listName, id) {
+      if (!requireAdmin("edit content")) return;
+      const list = getManagedList(listName);
+      if (!list) return;
+      const item = list.find(entry => entry.id === id);
+      if (!item) return;
+      const nextTitle = prompt("Update title", item.title || "");
+      if (nextTitle === null) return;
+      const nextText = prompt(
+        listName === "practice" ? "Update question details" : "Update blog summary",
+        listName === "practice" ? (item.description || "") : (item.summary || "")
+      );
+      if (nextText === null) return;
+      item.title = nextTitle.trim() || item.title;
+      if (listName === "practice") {
+        item.description = nextText.trim();
+      } else {
+        item.summary = nextText.trim();
+        const nextUrl = prompt("Update blog URL", item.url || "");
+        if (nextUrl !== null) item.url = nextUrl.trim();
+      }
+      item.updatedAt = new Date().toISOString();
+      item.updatedBy = currentUser?.identity || "admin";
+      saveManagedContent();
+      renderAdminLists();
+    }
+
+    function deleteManagedItem(listName, id) {
+      if (!requireAdmin("delete content")) return;
+      const list = getManagedList(listName);
+      if (!list) return;
+      const idx = list.findIndex(entry => entry.id === id);
+      if (idx < 0) return;
+      if (!confirm("Delete this entry?")) return;
+      list.splice(idx, 1);
+      saveManagedContent();
+      renderAdminLists();
+    }
+
+    function handleAdminListAction(event) {
+      const btn = event.target.closest("button[data-action]");
+      if (!btn) return;
+      const action = btn.dataset.action;
+      const listName = btn.dataset.list;
+      const id = btn.dataset.id;
+      if (!action || !listName || !id) return;
+      if (action === "edit") editManagedItem(listName, id);
+      if (action === "delete") deleteManagedItem(listName, id);
+    }
+
+    function exportManagedContent() {
+      if (!requireAdmin("export managed content")) return;
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        exportedBy: currentUser?.identity || "admin",
+        practiceQuestions: managedContent.practiceQuestions,
+        blogs: managedContent.blogs
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "managed-content.json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function runIdeCode() {
+      const html = el.ideHtml.value || "";
+      const css = el.ideCss.value || "";
+      const js = (el.ideJs.value || "").replaceAll("</script>", "<\\/script>");
+      const source = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}</style></head><body>${html}<script>try{${js}}catch(err){const pre=document.createElement("pre");pre.textContent=String(err);pre.style.color="#b91c1c";pre.style.padding="12px";document.body.appendChild(pre);}</script></body></html>`;
+      el.ideFrame.srcdoc = source;
+    }
+
+    function resetIdeStarter() {
+      el.ideHtml.value = IDE_STARTER.html;
+      el.ideCss.value = IDE_STARTER.css;
+      el.ideJs.value = IDE_STARTER.js;
+      runIdeCode();
+    }
+
+    function saveAuthSession() {
+      if (!currentUser) return;
+      localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(currentUser));
+    }
+
+    function clearAuthSession() {
+      localStorage.removeItem(AUTH_SESSION_KEY);
+    }
+
+    function loadAuthSession() {
+      try {
+        const raw = localStorage.getItem(AUTH_SESSION_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (!parsed || !parsed.provider || !parsed.identity) return;
+        currentUser = {
+          provider: parsed.provider,
+          identity: parsed.identity,
+          displayName: parsed.displayName || parsed.identity,
+          isAdmin: Boolean(parsed.isAdmin || isAdminIdentity(parsed.provider, parsed.identity)),
+          loggedInAt: parsed.loggedInAt || new Date().toISOString()
+        };
+      } catch (err) {
+        currentUser = null;
+      }
+    }
+
+    function loginWithProvider(provider) {
+      const label = provider === "gmail" ? "Gmail address" : "GitHub username";
+      const input = prompt(`Enter your ${label} to login`);
+      if (!input) return;
+      const identity = input.trim();
+      if (!identity) return;
+      if (provider === "gmail" && !/^[^\s@]+@gmail\.com$/i.test(identity)) {
+        alert("Please enter a valid Gmail address.");
+        return;
+      }
+      if (provider === "github" && !/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i.test(identity)) {
+        alert("Please enter a valid GitHub username.");
+        return;
+      }
+
+      currentUser = {
+        provider,
+        identity,
+        displayName: provider === "gmail" ? identity.split("@")[0] : identity,
+        isAdmin: isAdminIdentity(provider, identity),
+        loggedInAt: new Date().toISOString()
+      };
+      saveAuthSession();
+      applyAuthState();
+      switchTool("duplicate");
+      setStatus(`Logged in via ${provider === "gmail" ? "Gmail" : "GitHub"}. Select a folder to begin.`);
+    }
+
+    function logout() {
+      if (!currentUser) return;
+      currentUser = null;
+      clearAuthSession();
+      applyAuthState();
+      switchTool("duplicate");
+      resetForFolderReselection("Logged out. Login with Gmail or GitHub to begin.", {
+        disablePick: true,
+        previewMessage: "Login with Gmail or GitHub to access file preview."
+      });
+      setRaw({ message: "Signed out. Workspace reset." });
+    }
+
+    function applyAdminAccessState() {
+      if (!currentUser) {
+        el.adminGate.textContent = "Login required. Use Gmail or GitHub first.";
+        el.adminGate.classList.remove("hidden");
+        el.adminContent.classList.add("hidden");
+        return;
+      }
+      if (!currentUser.isAdmin) {
+        el.adminGate.textContent = "Admin role required. Use an admin account (example: admin@gmail.com or GitHub user admin).";
+        el.adminGate.classList.remove("hidden");
+        el.adminContent.classList.add("hidden");
+        return;
+      }
+      el.adminGate.classList.add("hidden");
+      el.adminContent.classList.remove("hidden");
+    }
+
+    function applyAuthState() {
+      const isLoggedIn = Boolean(currentUser);
+      el.gmailLoginBtn.disabled = isLoggedIn;
+      el.githubLoginBtn.disabled = isLoggedIn;
+      el.logoutBtn.disabled = !isLoggedIn;
+
+      el.tabDuplicate.disabled = !isLoggedIn;
+      el.tabIDE.disabled = !isLoggedIn;
+      el.tabAdmin.disabled = !isLoggedIn;
+
+      if (!isLoggedIn) {
+        el.authState.textContent = "Not logged in";
+        el.authMeta.textContent = "Login with Gmail or GitHub to continue.";
+        el.pickBtn.disabled = true;
+      } else {
+        const providerLabel = currentUser.provider === "gmail" ? "Gmail" : "GitHub";
+        const roleLabel = currentUser.isAdmin ? "Admin" : "User";
+        el.authState.textContent = `${currentUser.displayName} (${providerLabel})`;
+        el.authMeta.textContent = `${roleLabel} access enabled.`;
+        el.pickBtn.disabled = false;
+      }
+      applyAdminAccessState();
+    }
 
     function setStatus(msg) {
       el.status.textContent = msg;
@@ -273,7 +1173,7 @@
     function clearPreview(message = "") {
       releasePreviewUrls();
       if (!message) {
-        el.previewContainer.innerHTML = "";
+        el.previewContainer.innerHTML = '<div class="previewEmpty">Select duplicate files to preview them here.</div>';
         return;
       }
       el.previewContainer.innerHTML = `<div class="previewEmpty">${escapeHtml(message)}</div>`;
@@ -374,7 +1274,11 @@
       }
     }
 
-    function resetForFolderReselection(statusMessage) {
+    function resetForFolderReselection(statusMessage, options = {}) {
+      const {
+        disablePick = false,
+        previewMessage = "Session closed. Select a folder to start a new run."
+      } = options;
       releasePreviewUrls();
       rootHandle = null;
       allFiles = [];
@@ -382,12 +1286,13 @@
       scannedCount = 0;
 
       el.tableContainer.innerHTML = "";
-      el.previewContainer.innerHTML = '<div class="previewEmpty">Session closed. Select a folder to start a new run.</div>';
+      el.previewContainer.innerHTML = `<div class="previewEmpty">${escapeHtml(previewMessage)}</div>`;
       el.scannedFiles.textContent = "0";
       el.dupGroups.textContent = "0";
       el.deleteCandidates.textContent = "0";
       el.recoverableBytes.textContent = "0";
 
+      el.pickBtn.disabled = disablePick;
       el.scanBtn.disabled = true;
       el.previewSelectedBtn.disabled = true;
       el.selectAllBtn.disabled = true;
@@ -414,6 +1319,7 @@
     }
 
     async function selectFolder() {
+      if (!requireLogin("select a folder")) return;
       if (!window.showDirectoryPicker) {
         alert("This browser does not support folder access API. Use latest Chrome/Edge.");
         return;
@@ -468,6 +1374,7 @@
     }
 
     async function goAheadScan() {
+      if (!requireLogin("scan duplicates")) return;
       if (!rootHandle) {
         alert("Select folder first.");
         return;
@@ -549,14 +1456,15 @@
       el.scannedFiles.textContent = scannedCount || allFiles.length || 0;
       el.dupGroups.textContent = duplicateGroups.length;
       el.deleteCandidates.textContent = candidateCount;
-      el.recoverableBytes.textContent = recoverable;
+      el.recoverableBytes.textContent = (recoverable / (1024 * 1024)).toFixed(2) + " MB";
+      const loggedIn = Boolean(currentUser);
       const canDelete = candidateCount > 0;
-      el.previewSelectedBtn.disabled = !canDelete;
-      el.selectAllBtn.disabled = !canDelete;
-      el.deselectAllBtn.disabled = !canDelete;
-      el.deleteSelectedBtn.disabled = !canDelete;
-      el.deleteAllBtn.disabled = !canDelete;
-      el.exportBtn.disabled = duplicateGroups.length === 0;
+      el.previewSelectedBtn.disabled = !loggedIn || !canDelete;
+      el.selectAllBtn.disabled = !loggedIn || !canDelete;
+      el.deselectAllBtn.disabled = !loggedIn || !canDelete;
+      el.deleteSelectedBtn.disabled = !loggedIn || !canDelete;
+      el.deleteAllBtn.disabled = !loggedIn || !canDelete;
+      el.exportBtn.disabled = !loggedIn || duplicateGroups.length === 0;
     }
 
     function renderDuplicateTable() {
@@ -564,11 +1472,17 @@
         el.tableContainer.innerHTML = "<p>No duplicates found.</p>";
         return;
       }
+      releasePreviewUrls(); // Release any existing URLs before creating new ones
       const rows = [];
       duplicateGroups.forEach((group, groupIndex) => {
+        const keeper = group.files[0];
+        const keeperUrl = IMAGE_EXTS.has(keeper.ext) ? URL.createObjectURL(keeper.file) : null;
+        if (keeperUrl) previewUrls.push(keeperUrl);
+        
         group.files.forEach((f, fileIndex) => {
-          const keeper = fileIndex === 0;
-          const groupControls = keeper
+          const isKeeper = fileIndex === 0;
+          const thumbnail = isKeeper && keeperUrl ? `<img src="${keeperUrl}" class="groupThumbnail" onclick="previewGroup(${groupIndex})" alt="Group ${groupIndex + 1} preview" />` : '';
+          const groupControls = isKeeper
             ? `
               <div class="groupControls">
                 <button type="button" class="tinyBtn groupSelectBtn" data-group="${groupIndex}">Select Group</button>
@@ -580,11 +1494,12 @@
           rows.push(`
             <tr>
               <td>${groupIndex + 1}</td>
+              <td>${thumbnail}</td>
               <td class="path">${group.hash.slice(0, 16)}...</td>
               <td class="path">${escapeHtml(group.nameKey)}</td>
               <td>${f.size}</td>
-              <td class="path">${f.relativePath}</td>
-              <td>${keeper ? '<span class="keeper">KEEPER (Original)</span>' : `<input class="dup-check" type="checkbox" data-group="${groupIndex}" data-file="${fileIndex}" checked />`}</td>
+              <td class="path">${escapeHtml(f.relativePath)}</td>
+              <td>${isKeeper ? '<span class="keeper">KEEPER (Original)</span>' : `<input class="dup-check" type="checkbox" data-group="${groupIndex}" data-file="${fileIndex}" checked />`}</td>
               <td>${groupControls}</td>
             </tr>
           `);
@@ -596,6 +1511,7 @@
           <thead>
             <tr>
               <th>Group</th>
+              <th>Preview</th>
               <th>Hash</th>
               <th>Name Key</th>
               <th>Bytes</th>
@@ -674,12 +1590,100 @@
     }
 
     function renderSelectedPreview() {
-      const selected = getSelectedTargets(true).map(({ groupNumber, item }) => ({
-        groupNumber,
-        item,
-        isKeeper: false
-      }));
-      renderPreview(selected, `Selected Duplicate Preview (${selected.length})`);
+      const selected = getSelectedTargets(true);
+      if (selected.length === 0) {
+        el.previewContainer.innerHTML = '<div class="previewEmpty">Select duplicate files to preview them here.</div>';
+        return;
+      }
+      
+      // Group selected items by their group number
+      const groupedByGroup = {};
+      selected.forEach(({ groupNumber, item }) => {
+        if (!groupedByGroup[groupNumber]) {
+          groupedByGroup[groupNumber] = [];
+        }
+        groupedByGroup[groupNumber].push(item);
+      });
+
+      releasePreviewUrls();
+      const cards = [];
+      
+      Object.keys(groupedByGroup).forEach(groupNumber => {
+        const items = groupedByGroup[groupNumber];
+        // Show only first item by default, with button to expand
+        const firstItem = items[0];
+        const url = URL.createObjectURL(firstItem.file);
+        previewUrls.push(url);
+        
+        let media = `<div class="previewMeta">Preview unavailable</div>`;
+        if (IMAGE_EXTS.has(firstItem.ext)) media = `<img src="${url}" alt="${escapeHtml(firstItem.name)}" loading="lazy" />`;
+        if (VIDEO_EXTS.has(firstItem.ext)) media = `<video src="${url}" controls preload="metadata"></video>`;
+        
+        const expandBtn = items.length > 1 ? `<button type="button" class="tinyBtn expandGroupBtn" data-group="${groupNumber}">View all ${items.length} (${items.length - 1} more)</button>` : '';
+        
+        cards.push(`
+          <div class="previewCard">
+            <div class="previewMeta">Group ${groupNumber} - ${items.length} file(s)</div>
+            <div class="previewMeta">${escapeHtml(firstItem.relativePath)}</div>
+            ${media}
+            ${expandBtn}
+          </div>
+        `);
+      });
+
+      el.previewContainer.innerHTML = `
+        <div class="previewWrap">
+          <h3 class="previewTitle">Selected Duplicates (${selected.length} files)</h3>
+          <div class="previewGrid">${cards.join("")}</div>
+        </div>
+      `;
+      
+      // Add event listeners to expand buttons
+      el.previewContainer.querySelectorAll(".expandGroupBtn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const groupNum = Number(btn.dataset.group);
+          const groupIndex = groupNum - 1;
+          expandGroupPreview(groupIndex, groupNum);
+        });
+      });
+    }
+    
+    function expandGroupPreview(groupIndex, groupNumber) {
+      const group = duplicateGroups[groupIndex];
+      if (!group) return;
+      
+      releasePreviewUrls();
+      const cards = [];
+      
+      group.files.forEach((item, idx) => {
+        const url = URL.createObjectURL(item.file);
+        previewUrls.push(url);
+        
+        let media = `<div class="previewMeta">Preview unavailable</div>`;
+        if (IMAGE_EXTS.has(item.ext)) media = `<img src="${url}" alt="${escapeHtml(item.name)}" loading="lazy" />`;
+        if (VIDEO_EXTS.has(item.ext)) media = `<video src="${url}" controls preload="metadata"></video>`;
+        
+        const status = idx === 0 ? '<span class="keeper">KEEPER</span>' : '<span style="color: var(--muted); font-size: 11px;">DUPLICATE</span>';
+        
+        cards.push(`
+          <div class="previewCard">
+            <div class="previewMeta">Group ${groupNumber} - File ${idx + 1} of ${group.files.length}</div>
+            <div class="previewMeta">${status}</div>
+            <div class="previewMeta">${escapeHtml(item.relativePath)}</div>
+            <div class="previewMeta" style="font-size: 10px; color: #999;">Size: ${(item.size / 1024).toFixed(2)} KB</div>
+            ${media}
+          </div>
+        `);
+      });
+
+      el.previewContainer.innerHTML = `
+        <div class="previewWrap">
+          <h3 class="previewTitle">Group ${groupNumber} - All Files (${group.files.length})</h3>
+          <p style="font-size: 0.9rem; color: var(--muted); margin: 8px 0;">Verify all photos to ensure they are identical</p>
+          <div class="previewGrid">${cards.join("")}</div>
+          <button type="button" class="tinyBtn" onclick="renderSelectedPreview()" style="margin-top: 12px;">Back to selected</button>
+        </div>
+      `;
     }
 
     function previewGroup(groupIndex) {
@@ -694,6 +1698,7 @@
     }
 
     function previewSelected() {
+      if (!requireLogin("preview duplicates")) return;
       renderSelectedPreview();
       if (!getSelectedTargets().length) {
         alert("No selected duplicates to preview.");
@@ -715,6 +1720,7 @@
     }
 
     async function deleteSelected() {
+      if (!requireLogin("delete selected duplicates")) return;
       const targets = getSelectedTargets();
       if (!targets.length) {
         alert("No selected duplicate files.");
@@ -741,6 +1747,7 @@
     }
 
     async function deleteAll() {
+      if (!requireLogin("delete duplicates")) return;
       const targets = duplicateGroups.flatMap(g => g.files.slice(1));
       if (!targets.length) {
         alert("No duplicate candidates to delete.");
@@ -771,6 +1778,7 @@
     }
 
     function exportReport() {
+      if (!requireLogin("export reports")) return;
       const report = buildReportObject();
       const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -782,6 +1790,27 @@
       a.remove();
       URL.revokeObjectURL(url);
     }
+
+    function initWorkspace() {
+      loadManagedContent();
+      renderAdminLists();
+      resetIdeStarter();
+      loadAuthSession();
+      applyAuthState();
+      switchTool("duplicate");
+
+      if (!currentUser) {
+        resetForFolderReselection("Login with Gmail or GitHub to begin.", {
+          disablePick: true,
+          previewMessage: "Login with Gmail or GitHub to access file preview."
+        });
+        setRaw({ message: "Awaiting login." });
+      } else {
+        setStatus("Logged in. Select a folder to begin.");
+      }
+    }
+
+    initWorkspace();
   </script>
 </body>
 </html>
